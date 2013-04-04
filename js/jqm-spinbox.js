@@ -11,6 +11,8 @@
 			// All widget options, including some internal runtime details
 			dmin: false,
 			dmax: false,
+			dstep: false,
+			ddec: 0,
 			theme: false,
 			initSelector: "input[data-role='spinbox']",
 			clickEvent: 'vclick',
@@ -54,8 +56,17 @@
 			}
 			
 			
-			if ( o.dmin === false ) { o.dmin = ( typeof w.d.input.attr('min') !== 'undefined' ) ? parseInt(w.d.input.attr('min'),10) : Number.MAX_VALUE * -1; }
-			if ( o.dmax === false ) { o.dmax = ( typeof w.d.input.attr('max') !== 'undefined' ) ? parseInt(w.d.input.attr('max'),10) : Number.MAX_VALUE; }
+			if ( o.dmin === false ) { o.dmin = ( typeof w.d.input.attr('min') !== 'undefined' ) ? parseFloat(w.d.input.attr('min'))  : Number.MAX_VALUE * -1; }
+			if ( o.dmax === false ) { o.dmax = ( typeof w.d.input.attr('max') !== 'undefined' ) ? parseFloat(w.d.input.attr('max'))  : Number.MAX_VALUE; }
+			if ( o.dstep=== false ) { o.dstep= ( typeof w.d.input.attr('step')!== 'undefined' ) ? parseFloat(w.d.input.attr('step')) : 1; }
+			
+			//determine the number of decimal places in dstep.
+			var tmp = new String(o.dstep);
+			if (tmp.indexOf('.')>-1) {
+				o.ddec = tmp.length-tmp.indexOf('.')-1;
+			} else {
+				o.ddec = 0;
+			}
 			
 			w.d.up = $('<div>')
 				.buttonMarkup({icon: 'plus', theme: o.theme, iconpos: 'notext', corners:true, shadow:true, inline:o.type==="horizontal"})
@@ -76,9 +87,10 @@
 			w.d.up.on(o.clickEvent, function(e) {
 				e.preventDefault();
 				if ( !w.disabled ) {
-					tmp = parseInt(w.d.input.val(),10) + 1;
+					tmp = parseFloat(w.d.input.val()) + o.dstep;
+					
 					if ( tmp <= o.dmax ) { 
-						w.d.input.val(tmp);
+						w.d.input.val(tmp.toFixed(o.ddec));
 						w.d.input.trigger('change');
 					}
 				}
@@ -87,9 +99,9 @@
 			w.d.down.on(o.clickEvent, function(e) {
 				e.preventDefault();
 				if ( !w.disabled ) {
-					tmp = parseInt(w.d.input.val(),10) - 1;
+					tmp = parseFloat(w.d.input.val()) - o.dstep;
 					if ( tmp >= o.dmin ) { 
-						w.d.input.val(tmp);
+						w.d.input.val(tmp.toFixed(o.ddec));
 						w.d.input.trigger('change');
 					}
 				}
@@ -99,7 +111,7 @@
 				w.d.input.on('mousewheel', function(e,d) {
 					e.preventDefault();
 					if ( !w.disabled ) {
-						tmp = parseInt(w.d.input.val(),10) + ((d<0)?-1:1);
+						tmp = parseFloat(w.d.input.val(),10) + ((d<0)?-o.dstep:o.dstep);
 						if ( tmp >= o.dmin && tmp <= o.dmax ) { 
 							w.d.input.val(tmp); 
 							w.d.input.trigger('change');
