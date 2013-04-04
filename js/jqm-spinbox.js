@@ -17,7 +17,8 @@
 			type: 'horizontal', // or vertical
 		},
 		_create: function() {
-			var w = this, tmp,
+			var w = this, 
+				tmp,
 				o = $.extend(this.options, this.element.jqmData('options')),
 				d = {
 					input: this.element,
@@ -106,6 +107,17 @@
 					}
 				});
 			}
+		},
+		_update: function() {
+			//update when needed
+			//remove the buttons and recreate
+			this.d.up.remove();
+			this.d.down.remove();
+			this._create();
+		},
+		refresh: function() {
+			//external function to allow javascript refresh
+			return this._update();
 		},
 		disable: function(){
 			// Disable the element
